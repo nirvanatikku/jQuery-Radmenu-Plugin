@@ -1,14 +1,18 @@
 /*!
- * jQuery Radmenu (Radial Menu) v0.9
- * http://www.tikku.com/jquery-radmenu-plugin
+ * jQuery Radmenu (Radial Menu) Plugin
+ * version: 0.9 (24-JUNE-2010)
+ * @requires v1.3.2 or later
+ * 
+ * Documentation:
+ * 		http://www.tikku.com/jquery-radmenu-plugin
  *
  * Copyright 2010, Nirvana Tikku (ntikku@gmail.com)
- * Dual licensed under the MIT or GPL Version 2 licenses.
- *
- * Date: 24 June, 2010
- */
+ * 
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html */
 
-(function($){
+;(function($){
 	
 	// private :: constants
 	var SELECT = "select",
