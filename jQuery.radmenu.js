@@ -92,7 +92,6 @@
 	function selectMenuitem(evt){ 
 		var $this = $(this);
 		var $element = $(evt.target);
-		console.log("ELLEMENT", $element);
 		var index = $element.index();
 		$this.parents("."+RADIAL_DIV_CLASS)
 				.radmenu(index);
