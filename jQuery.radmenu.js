@@ -1,6 +1,6 @@
 /*!
  * jQuery Radmenu (Radial Menu) Plugin
- * version: 0.9 (24-JUNE-2010)
+ * version: 0.9 (26-JUNE-2010)
  * @requires v1.3.2 or later
  * 
  * Documentation:
@@ -10,7 +10,8 @@
  * 
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
- *   http://www.gnu.org/licenses/gpl.html */
+ *   http://www.gnu.org/licenses/gpl.html 
+ */
 
 ;(function($){
 	
@@ -62,7 +63,7 @@
 				return $this.trigger(input, extra);
 			else if(type=="number")
 				return $this.trigger(SELECT,input);
-		} catch (e){ return "error"; }
+		} catch (e){ return "error : "+e; }
 	};
 	
 	/**
@@ -96,10 +97,12 @@
 	function selectMenuitem(evt){ 
 		var $this = $(this);
 		var $element = $(evt.target);
+		if(!$element.hasClass(RADIAL_DIV_ITEM_CLASS))
+			$element = $element.parents("."+RADIAL_DIV_ITEM_CLASS);
 		var index = $element.index();
-		$this.parents("."+RADIAL_DIV_CLASS)
-				.radmenu(index);
-	}
+		$this.parents("."+RADIAL_DIV_CLASS).radmenu(index);
+	};
+	
 	/**
 	 * All the MENU events to be bound to the radial menu
 	 */
@@ -132,11 +135,12 @@
 		},
 		prev: function(evt){ // anticlockwise
 			var $m = getMenu(evt);
-			switchItems($m, 0, $m.raditems().length-2, 1);
+			switchItems($m, 0, $m.raditems().length-1, 1);
 		},
 		shuffle: function(evt){
 			var $m = getMenu(evt);
-			switchItems($m, 0, 1, parseInt(Math.random()*15));
+			var len = $m.raditems().length;
+			switchItems($m, parseInt(Math.random()*len), parseInt(Math.random()*len), parseInt(Math.random()*15));
 		}
 	};
 	
@@ -169,12 +173,11 @@
 	 * 	add - the expression for the menuitem to add
 	 */
 	function switchItems($m, remove, add, posOffset){
-		var $remove = $($m.raditems()[remove]),
-			_$remove = $remove.clone();
-		$remove.remove();
+		if(remove==add) add = remove - 1; // ensure that we don't lose any items
+		var $remove = $($m.raditems()[remove]);
 		var toAddto = $m.raditems()[add];
-		if(remove>add) _$remove.insertBefore(toAddto).show();
-		else _$remove.insertAfter(toAddto).show();
+		if(remove>add) $remove.insertBefore(toAddto).show();
+		else $remove.insertAfter(toAddto).show();
 		animateWheel($m,posOffset); // 5:neat, 10:fireworksesque, 15:subtleish
 	};
 	
