@@ -22,7 +22,8 @@
 		SHOW = "show",
 		HIDE = "hide",
 		SHUFFLE = "shuffle",
-		OPTS = "options";
+		OPTS = "options",
+		RADMENU = "radmenu."; // events are radmenu.{event} - guarantee no NS collision
 		
 	var RADIAL_DIV_CLASS = "radial_div",
 		RADIAL_DIV_ITEM_CLASS = "radial_div_item",
@@ -60,9 +61,9 @@
 			if(arguments.length==0 || type=="object") 
 				return init($this, input);
 			else if(type=="string")
-				return $this.trigger(input, extra);
+				return $this.trigger(RADMENU+input, extra);
 			else if(type=="number")
-				return $this.trigger(SELECT,input);
+				return $this.trigger(RADMENU+SELECT,input);
 		} catch (e){ return "error : "+e; }
 	};
 	
@@ -79,12 +80,12 @@
 			var $list = $this.find("."+o.listClass);
 			$list.find("."+o.itemClass).hide(); // ensure its hidden
 			$this.data(OPTS, o)
-				.bind(SHOW, $this, MENU.show)
-				.bind(HIDE, $this, MENU.hide)
-				.bind(SELECT, $this, MENU.select)
-				.bind(NEXT, $this, MENU.next)
-				.bind(PREV, $this, MENU.prev)
-				.bind(SHUFFLE, $this, MENU.shuffle);
+				.bind(RADMENU+SHOW, $this, MENU.show)
+				.bind(RADMENU+HIDE, $this, MENU.hide)
+				.bind(RADMENU+SELECT, $this, MENU.select)
+				.bind(RADMENU+NEXT, $this, MENU.next)
+				.bind(RADMENU+PREV, $this, MENU.prev)
+				.bind(RADMENU+SHUFFLE, $this, MENU.shuffle);
 		});
 	};
 	
