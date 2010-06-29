@@ -1,6 +1,6 @@
 /*!
  * jQuery Radmenu (Radial Menu) Plugin
- * version: 0.9 (26-JUNE-2010)
+ * version: 0.9.2 (29-JUNE-2010)
  * @requires v1.3.2 or later
  * 
  * Documentation:
@@ -99,9 +99,22 @@
 		var $this = $(this);
 		var $element = $(evt.target);
 		if(!$element.hasClass(RADIAL_DIV_ITEM_CLASS))
-			$element = $element.parents("."+RADIAL_DIV_ITEM_CLASS);
+			$element = $element.closest("."+RADIAL_DIV_ITEM_CLASS);
+		var isInNested = $element.parents("."+RADIAL_DIV_ITEM_CLASS).length>0;
 		var index = $element.index();
-		$this.parents("."+RADIAL_DIV_CLASS).radmenu(index);
+		if(!isInNested)$this.parents("."+RADIAL_DIV_CLASS).radmenu(index);
+		else $this.radmenu(index);
+		cancelBubble(evt);
+	};
+	
+	/**
+	 * cancel event bubbling - x-browser friendly
+	 * @param
+	 * 	evt - the event object
+	 */
+	function cancelBubble(evt){
+		if(jQuery.browser.msie) evt.cancelBubble = true;
+		else evt.stopPropagation();
 	};
 	
 	/**
@@ -118,10 +131,12 @@
 				$radialMenu.find("."+RADIAL_DIV_ITEM_CLASS)
 					.bind($m.opts.selectEvent,selectMenuitem);
 			$radialMenu.appendTo($m.menu); // create container
+			cancelBubble(evt);
 		},
 		hide: function(evt){ 
 			var $m = getMenu(evt);
 			$m.menu.find("."+RADIAL_DIV_CLASS).remove(); 
+			cancelBubble(evt);
 		},
 		select: function(evt, selectIndex){
 			var $m = getMenu(evt);
@@ -129,6 +144,7 @@
 			$selected.siblings().removeClass($m.opts.activeItemClass);
 			$selected.addClass($m.opts.activeItemClass);
 			$m.opts.onSelect($selected);
+			cancelBubble(evt);
 		},
 		next: function(evt){ // clockwise
 			var $m = getMenu(evt);
@@ -170,8 +186,8 @@
 	 * switchItems
 	 * @params
 	 * 	$m - the menu package
-	 * 	remove - the expression for the menuitem to remove
-	 * 	add - the expression for the menuitem to add
+	 * 	remove - the index of the menuitem to remove
+	 * 	add - the index of the menuitem to add
 	 */
 	function switchItems($m, remove, add, posOffset){
 		if(remove==add) add = remove - 1; // ensure that we don't lose any items
