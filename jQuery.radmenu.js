@@ -1,6 +1,6 @@
 /*!
  * jQuery Radmenu (Radial Menu) Plugin
- * version: 0.9.3 (15-JULY-2010)
+ * version: 0.9.4 (27-JULY-2010)
  * @requires v1.3.2 or later
  * 
  * Documentation:
@@ -15,22 +15,10 @@
 
 ;(function($){
 	
-	// private :: constants
-	var SELECT = "select",
-		NEXT = "next",
-		PREV = "prev",
-		SHOW = "show",
-		HIDE = "hide",
-		SHUFFLE = "shuffle",
-		DESTROY = "destroy",
-		OPTS = "options",
-		RADMENU = "radmenu."; // events are radmenu.{event} - guarantee no NS collision
+	// radmenu namespace
+	var OPTS = "options",
+		RADMENU = ".radmenu"; // events are radmenu.{event} - guarantee no NS collision
 		
-	var RADIAL_DIV_CLASS = "radial_div",
-		RADIAL_DIV_ITEM_CLASS = "radial_div_item",
-		RADIAL_DIV_HTML = "<div class='" + RADIAL_DIV_CLASS + "'></div>",
-		RADIAL_DIV_CSS = { "position": "relative" };
-	
 	// private :: defaults
 	var defaults = {
 		listClass: "list",
@@ -43,7 +31,19 @@
 		centerX: 0,
 		centerY: 0,
 		animSpeed: 500,
-		afterAnimation: function($m){}
+		afterAnimation: function($m){},
+		onShow: function($items){$items.show();},
+		onHide: function($items){$items.hide();}
+	};
+	
+	// DEFAULTS
+	$.radmenu = {
+		container: {
+			clz: "radial_div",
+			itemClz: "radial_div_item",
+			html: "<div></div>",
+			css: { "position": "relative" }
+		}
 	};
 	
 	/**
@@ -55,16 +55,19 @@
 	 * 	if string - assumes trigger method
 	 * 	if number - select a particular menu item
 	 */ 
-	$.fn.radmenu = function(input, extra){
+	$.fn.radmenu = function(input, param){
 		try {
 			var $this = $(this);
-			var type = typeof(input);
+			var type = typeof input;
 			if(arguments.length==0 || type=="object") 
 				return init($this, input);
 			else if(type=="string")
-				return $this.trigger(RADMENU+input, extra);
-			else if(type=="number")
-				return $this.trigger(RADMENU+SELECT,input);
+				return input=="items" ?
+					$this.triggerHandler(input+RADMENU) :
+					$this.trigger(input+RADMENU, param||null);
+			else if(type=="number"){
+				return $this.trigger("select"+RADMENU,input);
+			}
 		} catch (e){ return "error : "+e; }
 	};
 	
@@ -81,14 +84,8 @@
 			var $list = $this.find("."+o.listClass);
 			$list.find("."+o.itemClass).hide(); // ensure its hidden
 			// set the options within the data for the elem & bind evts
-			$this.data(OPTS, o)
-				.bind(RADMENU+SHOW, $this, MENU.show)
-				.bind(RADMENU+HIDE, $this, MENU.hide)
-				.bind(RADMENU+SELECT, $this, MENU.select)
-				.bind(RADMENU+NEXT, $this, MENU.next)
-				.bind(RADMENU+PREV, $this, MENU.prev)
-				.bind(RADMENU+SHUFFLE, $this, MENU.shuffle)
-				.bind(RADMENU+DESTROY, $this, MENU.destroy);
+			$this.data(OPTS, o);
+			for(event in MENU) $this.bind(event+RADMENU, $this, MENU[event]);
 		});
 	};
 
@@ -102,11 +99,12 @@
 	function selectMenuitem(evt){ 
 		var $this = $(this);
 		var $element = $(evt.target);
-		if(!$element.hasClass(RADIAL_DIV_ITEM_CLASS))
-			$element = $element.closest("."+RADIAL_DIV_ITEM_CLASS);
-		var isInNested = $element.parents("."+RADIAL_DIV_ITEM_CLASS).length>0;
+		var container = $.radmenu.container;
+		if(!$element.hasClass(container.itemClz))
+			$element = $element.closest("."+container.itemClz);
+		var isInNested = $element.parents("."+container.itemClz).length>0;
 		var index = $element.index();
-		if(!isInNested)$this.parents("."+RADIAL_DIV_CLASS).radmenu(index);
+		if(!isInNested)$this.parents("."+container.clz).radmenu(index);
 		else $this.radmenu(index);
 		cancelBubble(evt);
 	};
@@ -117,7 +115,7 @@
 	 * 	evt - the event object
 	 */
 	function cancelBubble(evt){
-		if(jQuery.browser.msie) window.event.cancelBubble = true;
+		if(!$.support.opacity) window.event.cancelBubble = true;
 		else evt.stopPropagation();
 	};
 	
@@ -125,27 +123,33 @@
 	 * All the MENU events to be bound to the radial menu
 	 */
 	var MENU = {
-		show: function(evt){
+		show: function(evt){ // fn = user input onshow
 			var $m = getMenu(evt);
+			var container = $.radmenu.container;
 			// clear any existing radial menus within the menu
-			$m.menu.find("."+RADIAL_DIV_CLASS).remove();
+			$m.menu.find("."+container.clz).remove();
 			// grab the desired menu items to be used in building the radmenu
 			var $menuitems = $m.menu.find("."+$m.opts.itemClass);
 			// create a div that will be the radmenu & create the HTML for the items
-			var $radialMenu = $(RADIAL_DIV_HTML).css(RADIAL_DIV_CSS)
+			var $radialMenu = $(container.html)
+				.addClass(container.clz).css(container.css)
 				.html(buildMenuHTML($menuitems, $m.opts));
 			// assign a selection event if the user has specified something
+			var $menuitems = $radialMenu.find("."+container.itemClz);
 			if($m.opts.selectEvent!=null)
-				$radialMenu.find("."+RADIAL_DIV_ITEM_CLASS)
-					.bind($m.opts.selectEvent,selectMenuitem);
+				$menuitems.bind($m.opts.selectEvent,selectMenuitem);
 			// append the radmenu items inside the menu 
 			$radialMenu.appendTo($m.menu);
+			if(typeof(fn) == "function") fn($menuitems);
+			else $m.opts.onShow($menuitems); // user can do what they want
 			cancelBubble(evt);
 		},
 		hide: function(evt){ 
 			var $m = getMenu(evt);
 			// remove the radmenu that was built and appended inside the menu
-			$m.menu.find("."+RADIAL_DIV_CLASS).remove(); 
+			var $menu = $m.menu.find("."+$.radmenu.container.clz);
+			$m.opts.onHide($menu);
+			$menu.remove();
 			cancelBubble(evt);
 		},
 		select: function(evt, selectIndex){
@@ -170,24 +174,22 @@
 			// switch the last and first items and then animate
 			switchItems($m, 0, $m.raditems().length-1, 1);
 		},
-		shuffle: function(evt){
+		shuffle: function(evt,rndOffset){
 			var $m = getMenu(evt);
 			var len = $m.raditems().length;
 			// swap some random item with another random item, and add some shuffling effects
-			switchItems($m, parseInt(Math.random()*len), parseInt(Math.random()*len), parseInt(Math.random()*15));
+			switchItems($m, rnd(len), rnd(len), rnd(rndOffset||15));
 		},
 		destroy: function(evt){
-			var $menu = evt.data;
-			$menu.data(OPTS, null)
-				.unbind(RADMENU+SHOW)
-				.unbind(RADMENU+HIDE)
-				.unbind(RADMENU+SELECT)
-				.unbind(RADMENU+NEXT)
-				.unbind(RADMENU+PREV)
-				.unbind(RADMENU+SHUFFLE)
-				.unbind(RADMENU+DESTROY);
-		}
+			var $m = getMenu(evt);
+			$m.menu.data(OPTS, null).unbind(RADMENU);
+			return $m.menu;
+		},
+		items: function(evt){return getMenu(evt).raditems();}
 	};
+	
+	// random int offset 
+	function rnd(i){return parseInt(Math.random()*i);};
 	
 	/**
 	 * getMenu 
@@ -206,7 +208,7 @@
 			opts: $menu.data(OPTS),
 			raditems: function(){
 				// you will want to trigger raditems() if the contents get modified
-				return $menu.find("."+RADIAL_DIV_ITEM_CLASS);
+				return $menu.find("."+$.radmenu.container.itemClz);
 			}
 		};
 	};
@@ -223,8 +225,8 @@
 		var $remove = $($m.raditems()[remove]); // grab the replacement item
 		var toAddto = $m.raditems()[add]; // grab the placeholder 
 		// insertion is dependent on index of items
-		if(remove>add) $remove.insertBefore(toAddto).show();
-		else $remove.insertAfter(toAddto).show();
+		if(remove>add) $remove.insertBefore(toAddto);
+		else $remove.insertAfter(toAddto);
 		animateWheel($m,posOffset); // posOffset = 5:neat, 10:fireworksesque, 15:subtleish
 	};
 	
@@ -246,9 +248,9 @@
 		$menuitems.each(function(i){ // for each item we will want to build the HTML
 			var $this = $(this);
 			var coords = getCoords(i+1, $menuitems.length, opts); // each item has a position
-			ret += "<div class='"+RADIAL_DIV_ITEM_CLASS+"' "; // outer container for the div
+			ret += "<div class='"+$.radmenu.container.itemClz+"' "; // outer container for the div
 			// after getting the coordinates, absolute position element at (x,y)
-			ret += "style='position:absolute;left:"+coords.x+"px;top:"+coords.y+"px;'>";
+			ret += "style='position:absolute;left:"+coords.x+"px;top:"+coords.y+"px;display:none;'>";
 			ret += $this.html(); // append the HTML _within_ the user's defined 'item'
 			ret += "</div>";
 		});
@@ -292,7 +294,7 @@
 	 */
 	function animateWheel($m, posOffset){
 		// get the menu from the $m menu package
-		var $menuitems = $m.menu.find("."+RADIAL_DIV_ITEM_CLASS);
+		var $menuitems = $m.menu.find("."+$.radmenu.container.itemClz);
 		// get a handle on the number of items
 		var len = $menuitems.length;
 		// for each item, we're going to animate left/top attributes
