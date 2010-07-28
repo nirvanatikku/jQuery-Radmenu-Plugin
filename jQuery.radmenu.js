@@ -148,7 +148,7 @@
 			var $m = getMenu(evt);
 			// remove the radmenu that was built and appended inside the menu
 			var $menu = $m.menu.find("."+$.radmenu.container.clz);
-			$m.opts.onHide($menu);
+			$m.opts.onHide($menu.find("."+$.radmenu.container.itemClz));
 			$menu.remove();
 			cancelBubble(evt);
 		},
