@@ -1,6 +1,6 @@
 /*!
  * jQuery Radmenu (Radial Menu) Plugin
- * version: 0.9.4 (27-JULY-2010)
+ * version: 0.9.5 (27-JULY-2010)
  * @requires v1.3.2 or later
  * 
  * Documentation:
@@ -85,7 +85,7 @@
 			$list.find("."+o.itemClass).hide(); // ensure its hidden
 			// set the options within the data for the elem & bind evts
 			$this.data(OPTS, o);
-			for(event in MENU) $this.bind(event+RADMENU, $this, MENU[event]);
+			for(e in MENU) $this.bind(e+RADMENU, $this, MENU[e]);
 		});
 	};
 
