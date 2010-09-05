@@ -1,6 +1,6 @@
 /*!
  * jQuery Radmenu (Radial Menu) Plugin
- * version: 0.9.5 (27-JULY-2010)
+ * version: 0.9.6 (4-SEPT-2010)
  * @requires v1.3.2 or later
  * 
  * Documentation:
@@ -16,8 +16,9 @@
 ;(function($){
 	
 	// radmenu namespace
-	var OPTS = "options",
-		RADMENU = ".radmenu"; // events are radmenu.{event} - guarantee no NS collision
+	var RADMENU = ".radmenu", // events are radmenu.{event} - guarantee no NS collision
+		OPTS = "options"+RADMENU,
+		PREVOPTS = "prevoptions"+RADMENU; 
 		
 	// private :: defaults
 	var defaults = {
@@ -27,13 +28,16 @@
 		selectEvent: null, // click, mouseenter etc
 		onSelect: function($selected){},
 		radius: 10, // in pixels
+		initialScale: 1,
 		angleOffset: 0, // in radians
 		centerX: 0,
 		centerY: 0,
 		animSpeed: 500,
 		afterAnimation: function($m){},
 		onShow: function($items){$items.show();},
-		onHide: function($items){$items.hide();}
+		onHide: function($items){$items.hide();},
+		// example onScaleItem: $item.css("font-size", factor+"em");
+		onScaleItem: function($item, factor, coords){} 
 	};
 	
 	// DEFAULTS
@@ -84,7 +88,7 @@
 			var $list = $this.find("."+o.listClass);
 			$list.find("."+o.itemClass).hide(); // ensure its hidden
 			// set the options within the data for the elem & bind evts
-			$this.data(OPTS, o);
+			$this.data(OPTS, updateRadius(o, o.initialScale, o.radius));
 			for(e in MENU) $this.bind(e+RADMENU, $this, MENU[e]);
 		});
 	};
@@ -123,7 +127,7 @@
 	 * All the MENU events to be bound to the radial menu
 	 */
 	var MENU = {
-		show: function(evt){ // fn = user input onshow
+		show: function(evt, fn){ // fn = user input onshow
 			var $m = getMenu(evt);
 			var container = $.radmenu.container;
 			// clear any existing radial menus within the menu
@@ -182,10 +186,34 @@
 		},
 		destroy: function(evt){
 			var $m = getMenu(evt);
-			$m.menu.data(OPTS, null).unbind(RADMENU);
+			$m.menu.data(OPTS, null).data(PREVOPTS, null).unbind(RADMENU);
 			return $m.menu;
 		},
-		items: function(evt){return getMenu(evt).raditems();}
+		items: function(evt){return getMenu(evt).raditems();},
+		scale: function(evt, factor){
+			var $m = getMenu(evt);
+			if(factor){
+				var o = $m.opts;
+				var container = $.radmenu.container;
+				var prevOpts = $m.menu.data(PREVOPTS);
+				if(!prevOpts) $m.menu.data(PREVOPTS, prevOpts=o);
+				// get the radial menu items
+				var $items = $m.menu.find("."+container.itemClz);
+				var updatedRadiusOpts = updateRadius(o, factor, prevOpts.radius);
+				$m.menu.data(OPTS, updatedRadiusOpts); // save the radius for anim purposes
+				$items.each(function(i){ // for each item update the x,y + css
+					var $this = $(this);
+					var coords = getCoords(i+1, $items.length, updatedRadiusOpts);
+					$this.css("left", coords.x).css("top", coords.y);
+					$m.opts.onScaleItem($this, factor, coords);
+				});
+			}
+			return $m.menu;
+		}
+	};
+	
+	function updateRadius(opts, radius, factor){
+		return $.extend({},opts,{radius:(factor*radius)});
 	};
 	
 	// random int offset 
@@ -300,7 +328,7 @@
 		// for each item, we're going to animate left/top attributes
 		$menuitems.each(function(i){
 			var $this = $(this);
-			// establish the new coordinates with a customizable offset
+			// establish the new coordinates with a customizable offset; len*(Math.PI+(Math.sqrt(5)))
 			var coords = getCoords(i+posOffset, len, $m.opts);
 			// playing with this is fun - this basically just
 			// performs the animation with new coordinates 
