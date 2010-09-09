@@ -33,6 +33,8 @@
 		centerX: 0,
 		centerY: 0,
 		animSpeed: 500,
+		scaleAnimSpeed: 400,
+		scaleAnimOpts: {},
 		afterAnimation: function($m){},
 		onShow: function($items){$items.show();},
 		onHide: function($items){$items.hide();},
@@ -204,7 +206,8 @@
 				$items.each(function(i){ // for each item update the x,y + css
 					var $this = $(this);
 					var coords = getCoords(i+1, $items.length, updatedRadiusOpts);
-					$this.css("left", coords.x).css("top", coords.y);
+					var animOpts = $.merge({left: coords.x,top: coords.y},o.scaleAnimOpts);
+					$this.animate(animOpts, o.scaleAnimSpeed);
 					$m.opts.onScaleItem($this, factor, coords);
 				});
 			}

@@ -2,13 +2,13 @@
 // jQuery Radial Menu
 //////////////////////////////////////////////////////////////////////////////////
 
-Latest version: v0.9.6 (5/Sept/2010)
+Latest version: v0.9.7 (9/Sept/2010)
 http://www.tikku.com/jquery-radmenu-plugin
 
 Copyright 2010, Nirvana Tikku (ntikku@gmail.com)
 Dual licensed under the MIT or GPL Version 2 licenses.
 
-Last Updated: 5 Sept, 2010
+Last Updated: 9 Sept, 2010
 
 //////////////////////////////////////////////////////////////////////////////////
 
