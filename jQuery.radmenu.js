@@ -33,6 +33,7 @@
 		centerX: 0,
 		centerY: 0,
 		animSpeed: 500,
+		animEasing: "swing",
 		scaleAnimSpeed: 400,
 		scaleAnimOpts: {},
 		afterAnimation: function($m){},
@@ -337,7 +338,7 @@
 			// performs the animation with new coordinates 
 			$this.animate({
 				left: coords.x, top: coords.y
-			}, $m.opts.animSpeed, i==(len-1)?function(){
+			}, $m.opts.animSpeed, $m.opts.animEasing, i==(len-1)?function(){
 				// allow the user to do something after completing an animation
 				$m.opts.afterAnimation($m);
 			}:undefined);
