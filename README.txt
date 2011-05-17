@@ -34,12 +34,17 @@ The plugin is initialized with the following properties:
 		angleOffset: 0,
 		centerX: 0,
 		centerY: 0, 
-		animSpeed: 500,
-		animEasing: "swing", 
-		scaleAnimSpeed: 0,
-		scaleAnimEasing: "swing",
-		scaleAnimOpts: {}, 
-		afterAnimation: function($m){}, 
+		rotateAnimOpts: {
+			duration: 500,
+			easing: "linear", // Creates a smoother animation when rotating more than once
+			complete: function(){}
+		},
+		scaleAnimProps: {}, // Additional properties to be animated
+		scaleAnimOpts: {
+			duration: 500,
+			easing: "swing",
+			complete: function(){}
+		},
 		onShow: function($items){$items.show();}, 
 		onHide: function($items){$items.hide();},
 		onNext: function($items){return true;}, 
