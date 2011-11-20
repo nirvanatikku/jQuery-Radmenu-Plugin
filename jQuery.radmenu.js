@@ -52,28 +52,36 @@
 		
 		centerY: 0,
 		
-		// animation properties
-		
-		animSpeed: 500,
-		
-		animEasing: "swing",
+		rotateAnimOpts: {
+			
+			duration: 500,
+			
+			easing: "linear", // Creates a smoother animation when rotating more than once
+			
+			complete: function(){}
+			
+		},
 		
 		// scaling properties and method
 		
 		initialScale: 1,
 		
-		scaleAnimSpeed: 0,
+		scaleAnimProps: {}, // Additional properties to be animated
 		
-		scaleAnimEasing: "swing",
-		
-		scaleAnimOpts: {},
+		scaleAnimOpts: {
+			
+			duration: 500,
+			
+			easing: "swing",
+			
+			complete: function(){}
+			
+		},
 		
 		// example onScaleItem: $item.css("font-size", factor+"em");
 		onScaleItem: function($item, factor, coords){},
 		
 		// public events 
-		
-		afterAnimation: function($m){},
 		
 		onShow: function($items){$items.show();},
 		
@@ -389,13 +397,13 @@
 						
 					};
 					
-					if(typeof(o.scaleAnimOpts) == "object") {
+					if(typeof(o.scaleAnimProps) == "object") {
 						
-						animOpts = $.extend({}, o.scaleAnimOpts, animOpts);
+						animOpts = $.extend({}, o.scaleAnimProps, animOpts);
 						
 					}
 					
-					$this.animate(animOpts, o.scaleAnimSpeed, o.scaleAnimEasing);
+					$this.animate(animOpts, o.scaleAnimOpts);
 					
 					$m.opts.onScaleItem($this, factor, coords);
 					
@@ -660,17 +668,7 @@
 			// playing with this is fun - this basically just
 			// performs the animation with new coordinates 
 			
-			$this.animate(
-				coords.animObj, 
-				$m.opts.animSpeed, 
-				$m.opts.animEasing, 
-				function(){
-					if(i==(len-1) ){
-						// allow the user to do something after completing an animation
-						$m.opts.afterAnimation($m);
-					}
-				}
-			);
+			$this.animate(coords.animObj, $m.opts.rotateAnimOpts);
 		});
 	};
 	
