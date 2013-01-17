@@ -1,0 +1,33 @@
+{
+  "name": "radmenu",
+  "title": "jQuery Radmenu",
+  "description": "Simplifies construction and manipulation of items in a radial menu.",
+  "keywords": [
+    "radial",
+    "circular",
+    "interface"
+  ],
+  "version": "1.0.1",
+  "author": {
+    "name": "Nirvana Tikku",
+    "email": "ntikku@gmail.com",
+    "url": "http://tikku.com"
+  },
+  "repository": {
+    "type": "git", 
+    "url": "git://github.com/nirvanatikku/jQuery-Radmenu-Plugin.git"
+  }, 
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "bugs": "https://github.com/nirvanatikku/jQuery-Radmenu-Plugin/issues",
+  "homepage": "http://tikku.com/jquery-radmenu-plugin",
+  "docs": "http://tikku.com/jquery-radmenu-plugin#radmenu_tutorial_3",
+  "download": "https://github.com/nirvanatikku/jQuery-Radmenu-Plugin/blob/master/jQuery.radmenu.js",
+  "dependencies": {
+    "jquery": ">=1.4.2"
+  }
+}
