@@ -1,6 +1,6 @@
 /*!
  * jQuery Radmenu (Radial Menu) Plugin
- * version: 1.0.0 (14-MAY-2011)
+ * version: 1.0.1 (17-JAN-2013)
  * @requires v1.4.2 or later
  * 
  * Author: Nirvana Tikku - ntikku@gmail.com - @ntikku
